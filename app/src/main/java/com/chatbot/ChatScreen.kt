@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -31,24 +30,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 internal fun ChatRoute(
-    chatViewModel: ChatViewModel = viewModel(
-        factory = ChatViewModel.getFactory(LocalContext.current.applicationContext)
-    )
+    chatViewModel: ChatViewModel = viewModel()
 ) {
-    val uiState by chatViewModel.uiState.collectAsStateWithLifecycle()
-    val textInputEnabled by chatViewModel.isTextInputEnabled.collectAsStateWithLifecycle()
+    // val uiState by chatViewModel.uiState.collectAsStateWithLifecycle()
+    // val textInputEnabled by chatViewModel.isTextInputEnabled.collectAsStateWithLifecycle()
     ChatScreen(
-        uiState,
-        textInputEnabled
+        chatViewModel
     ) { message ->
         chatViewModel.sendMessage(message)
     }
@@ -56,7 +50,7 @@ internal fun ChatRoute(
 
 @Composable
 fun ChatScreen(
-    uiState: UiState,
+    chatViewModel: ChatViewModel = viewModel(),
     textInputEnabled: Boolean = true,
     onSendMessage: (String) -> Unit
 ) {
@@ -74,9 +68,9 @@ fun ChatScreen(
                 .padding(horizontal = 8.dp),
             reverseLayout = true
         ) {
-            items(uiState.messages) { chat ->
+            /*items(uiState.messages) { chat ->
                 ChatItem(chat)
-            }
+            }*/
         }
 
         Row(
