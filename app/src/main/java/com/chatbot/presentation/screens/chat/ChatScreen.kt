@@ -1,4 +1,4 @@
-package com.chatbot
+package com.chatbot.presentation.screens.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.chatbot.domain.ChatMessage
+import com.chatbot.R
 
 @Composable
 internal fun ChatRoute(

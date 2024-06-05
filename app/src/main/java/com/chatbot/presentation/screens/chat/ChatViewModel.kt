@@ -1,7 +1,11 @@
-package com.chatbot
+package com.chatbot.presentation.screens.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chatbot.data.GeminiUiState
+import com.chatbot.domain.MODEL_PREFIX
+import com.chatbot.domain.USER_PREFIX
+import com.chatbot.domain.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
