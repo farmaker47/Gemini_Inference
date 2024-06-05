@@ -3,14 +3,14 @@ package com.chatbot.data
 import androidx.compose.runtime.toMutableStateList
 import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
-import com.chatbot.domain.UiState
+import com.chatbot.domain.MessageManager
 
 /**
- * A sample implementation of [UiState] that can be used with any model.
+ * A sample implementation of [MessageManager] that can be used with any model.
  */
-class ChatUiState(
+class ChatMessageManager(
     messages: List<ChatMessage> = emptyList()
-) : UiState {
+) : MessageManager {
     private val _messages: MutableList<ChatMessage> = messages.toMutableStateList()
     override val messages: List<ChatMessage> = _messages.reversed()
 

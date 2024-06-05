@@ -1,11 +1,13 @@
 package com.chatbot.domain
 
-import com.chatbot.domain.ChatMessage
-
 const val USER_PREFIX = "user"
 const val MODEL_PREFIX = "model"
 
-interface UiState {
+class Messages(
+    var messages: List<ChatMessage>
+)
+
+interface MessageManager {
     val messages: List<ChatMessage>
     val fullPrompt: String
 

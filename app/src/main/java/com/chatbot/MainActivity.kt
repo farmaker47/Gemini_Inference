@@ -12,7 +12,9 @@ import androidx.compose.ui.Modifier
 import com.chatbot.presentation.NavigationRoot
 import com.chatbot.presentation.components.AppBar
 import com.chatbot.ui.theme.GeminiInferenceTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

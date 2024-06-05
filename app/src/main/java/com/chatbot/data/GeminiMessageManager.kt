@@ -3,18 +3,30 @@ package com.chatbot.data
 import androidx.compose.runtime.toMutableStateList
 import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
-import com.chatbot.domain.UiState
+import com.chatbot.domain.MessageManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
 /**
- * An implementation of [UiState] to be used with Gemini.
+ * An implementation of [MessageManager] to be used with Gemini.
  */
-class GeminiUiState(
-    messages: List<ChatMessage> = emptyList()
-) : UiState {
+class GeminiMessageManager @Inject constructor(
+    messages: List<ChatMessage>
+) : MessageManager {
     private val START_TURN = "<start_of_turn>"
     private val END_TURN = "<end_of_turn>"
 
     private val _messages: MutableList<ChatMessage> = messages.toMutableStateList()
+
+    // Expose messages as StateFlow
+    private val _messagesFlow = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val messagesFlow: StateFlow<List<ChatMessage>> get() = _messagesFlow
+
+    init {
+        _messagesFlow.value = _messages
+    }
+
     override val messages: List<ChatMessage>
         get() = _messages
             .map {
@@ -50,6 +62,7 @@ class GeminiUiState(
                 _messages[index].message + text
             }
             _messages[index] = _messages[index].copy(message = newText, isLoading = false)
+            _messagesFlow.value = _messages
         }
     }
 
@@ -59,6 +72,7 @@ class GeminiUiState(
             author = author
         )
         _messages.add(chatMessage)
+        _messagesFlow.value = _messages
         return chatMessage.id
     }
 }

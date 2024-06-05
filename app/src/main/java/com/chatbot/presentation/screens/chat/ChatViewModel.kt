@@ -1,37 +1,85 @@
 package com.chatbot.presentation.screens.chat
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chatbot.data.GeminiUiState
+import com.chatbot.data.GeminiMessageManager
+import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.USER_PREFIX
-import com.chatbot.domain.UiState
+import com.chatbot.presentation.utils.UiText
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatViewModel : ViewModel() {
+sealed interface ChatAction {
+    data object OnSendMessage: ChatAction
+    data object OnMicPressed: ChatAction
+}
 
-    // `GeminiUiState()` is optimized for Gemini.
-    // Replace `GeminiUiState` with `ChatUiState()` if you're using a different model
-    private val _uiState: MutableStateFlow<GeminiUiState> = MutableStateFlow(GeminiUiState())
-    val uiState: StateFlow<UiState> =
-        _uiState.asStateFlow()
+data class ChatState(
+    val textInput: TextFieldState = TextFieldState(),
+    val textInputEnabled: Boolean = true,
+    val messages: List<ChatMessage> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)
 
-    private val _textInputEnabled: MutableStateFlow<Boolean> =
-        MutableStateFlow(true)
-    val isTextInputEnabled: StateFlow<Boolean> =
-        _textInputEnabled.asStateFlow()
+sealed interface ChatEvent {
+    data class Error(val error: UiText): ChatEvent
+    data object OnSendMessage: ChatEvent
+    data class OnMessageReceived(val message: String): ChatEvent
+}
+
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val messageManager: GeminiMessageManager
+) : ViewModel() {
+
+    var state by mutableStateOf(ChatState())
+        private set
+
+    private val eventChannel = Channel<ChatEvent>()
+    val events = eventChannel.receiveAsFlow()
+
+    fun onAction(action: ChatAction) {
+        when (action) {
+            is ChatAction.OnSendMessage -> {
+                // Handle send message action
+                sendMessage(state.textInput.text.toString())
+            }
+            is ChatAction.OnMicPressed -> {
+                // Handle mic pressed action
+            }
+        }
+    }
+
+    init {
+        observeMessages()
+    }
+
+    private fun observeMessages() {
+        viewModelScope.launch {
+            messageManager.messagesFlow.collectLatest { messages ->
+                state = state.copy(messages = messages)
+            }
+        }
+    }
 
     fun sendMessage(userMessage: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value.addMessage(userMessage, USER_PREFIX)
+            messageManager.addMessage(userMessage, USER_PREFIX)
             // var currentMessageId: String? = _uiState.value.createLoadingMessage()
             setInputEnabled(false)
             try {
-                val fullPrompt = _uiState.value.fullPrompt
+                val fullPrompt = messageManager.fullPrompt
                 /*inferenceModel.generateResponseAsync(fullPrompt)
                 inferenceModel.partialResults
                     .collectIndexed { index, (partialResult, done) ->
@@ -49,14 +97,16 @@ class ChatViewModel : ViewModel() {
                         }
                     }*/
             } catch (e: Exception) {
-                _uiState.value.addMessage(e.localizedMessage ?: "Unknown Error", MODEL_PREFIX)
+                messageManager.addMessage(e.localizedMessage ?: "Unknown Error", MODEL_PREFIX)
                 setInputEnabled(true)
             }
         }
     }
 
     private fun setInputEnabled(isEnabled: Boolean) {
-        _textInputEnabled.value = isEnabled
+        state = state.copy(
+            textInputEnabled = isEnabled
+        )
     }
 
     companion object {
