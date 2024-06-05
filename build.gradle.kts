@@ -5,5 +5,6 @@ plugins {
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.com.google.devtools.ksp) apply false
     alias(libs.plugins.com.android.library) apply false
+    alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
 }
