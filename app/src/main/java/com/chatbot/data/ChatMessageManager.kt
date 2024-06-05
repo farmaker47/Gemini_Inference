@@ -4,12 +4,13 @@ import androidx.compose.runtime.toMutableStateList
 import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.MessageManager
+import javax.inject.Inject
 
 /**
  * A sample implementation of [MessageManager] that can be used with any model.
  */
-class ChatMessageManager(
-    messages: List<ChatMessage> = emptyList()
+class ChatMessageManager @Inject constructor(
+    messages: List<ChatMessage>
 ) : MessageManager {
     private val _messages: MutableList<ChatMessage> = messages.toMutableStateList()
     override val messages: List<ChatMessage> = _messages.reversed()

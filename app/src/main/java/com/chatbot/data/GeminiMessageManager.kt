@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-/**
- * An implementation of [MessageManager] to be used with Gemini.
- */
 class GeminiMessageManager @Inject constructor(
     messages: List<ChatMessage>
 ) : MessageManager {
@@ -20,12 +17,8 @@ class GeminiMessageManager @Inject constructor(
     private val _messages: MutableList<ChatMessage> = messages.toMutableStateList()
 
     // Expose messages as StateFlow
-    private val _messagesFlow = MutableStateFlow<List<ChatMessage>>(emptyList())
+    private val _messagesFlow = MutableStateFlow<List<ChatMessage>>(_messages)
     val messagesFlow: StateFlow<List<ChatMessage>> get() = _messagesFlow
-
-    init {
-        _messagesFlow.value = _messages
-    }
 
     override val messages: List<ChatMessage>
         get() = _messages
@@ -37,13 +30,13 @@ class GeminiMessageManager @Inject constructor(
                 )
             }.reversed()
 
-    // Only using the last 4 messages to keep input + output short
     override val fullPrompt: String
         get() = _messages.takeLast(4).joinToString(separator = "\n") { it.message }
 
     override fun createLoadingMessage(): String {
         val chatMessage = ChatMessage(author = MODEL_PREFIX, isLoading = true)
         _messages.add(chatMessage)
+        _messagesFlow.value = _messages.toList() // update the flow with a new list
         return chatMessage.id
     }
 
@@ -62,7 +55,7 @@ class GeminiMessageManager @Inject constructor(
                 _messages[index].message + text
             }
             _messages[index] = _messages[index].copy(message = newText, isLoading = false)
-            _messagesFlow.value = _messages
+            _messagesFlow.value = _messages.toList() // update the flow with a new list
         }
     }
 
@@ -72,7 +65,7 @@ class GeminiMessageManager @Inject constructor(
             author = author
         )
         _messages.add(chatMessage)
-        _messagesFlow.value = _messages
+        _messagesFlow.value = _messages.toList() // update the flow with a new list
         return chatMessage.id
     }
 }

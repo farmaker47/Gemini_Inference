@@ -1,6 +1,6 @@
 package com.chatbot.presentation.screens.chat
 
-import androidx.compose.foundation.text.input.TextFieldState
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,7 +14,7 @@ import com.chatbot.presentation.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +25,7 @@ sealed interface ChatAction {
 }
 
 data class ChatState(
-    val textInput: TextFieldState = TextFieldState(),
+    val textInput: String = "",
     val textInputEnabled: Boolean = true,
     val messages: List<ChatMessage> = emptyList(),
     val isLoading: Boolean = false,
@@ -49,26 +49,39 @@ class ChatViewModel @Inject constructor(
     private val eventChannel = Channel<ChatEvent>()
     val events = eventChannel.receiveAsFlow()
 
-    fun onAction(action: ChatAction) {
-        when (action) {
-            is ChatAction.OnSendMessage -> {
-                // Handle send message action
-                sendMessage(state.textInput.text.toString())
-            }
-            is ChatAction.OnMicPressed -> {
-                // Handle mic pressed action
-            }
-        }
-    }
-
     init {
         observeMessages()
+
+        // demo of adding messages through the messageManager that reflect back on viewModel's "state"
+        viewModelScope.launch {
+            delay(1000)
+            messageManager.addMessage("abc", "ioannis")
+            delay(1000)
+            messageManager.addMessage("def", "george")
+            delay(1000)
+            messageManager.addMessage("hij", "eleni")
+        }
     }
 
     private fun observeMessages() {
         viewModelScope.launch {
-            messageManager.messagesFlow.collectLatest { messages ->
+            messageManager.messagesFlow.collect { messages ->
+                // when the messageManager gets a new message, add it to the state
                 state = state.copy(messages = messages)
+                Log.d("MESSAGE ADDED", "observeMessages: ${state.messages.map { it.author }}")
+            }
+        }
+    }
+
+    fun onAction(action: ChatAction) {
+        when (action) {
+            is ChatAction.OnSendMessage -> {
+                // Handle send message action
+                Log.d("IOANNIS", "onAction: ")
+                sendMessage(state.textInput)
+            }
+            is ChatAction.OnMicPressed -> {
+                // Handle mic pressed action
             }
         }
     }
@@ -107,9 +120,5 @@ class ChatViewModel @Inject constructor(
         state = state.copy(
             textInputEnabled = isEnabled
         )
-    }
-
-    companion object {
-
     }
 }
