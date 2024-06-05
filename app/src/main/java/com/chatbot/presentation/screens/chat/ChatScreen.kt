@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chatbot.R
@@ -163,4 +164,13 @@ fun ChatItem(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ChatScreenPreview() {
+    ChatScreen(
+        state = ChatState(),
+        onAction = {}
+    )
 }
