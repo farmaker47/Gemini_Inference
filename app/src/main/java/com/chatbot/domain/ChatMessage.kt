@@ -7,10 +7,14 @@ import java.util.UUID
  */
 data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
+    val text: String = "",
     val message: String = "",
     val author: String,
     val isLoading: Boolean = false
 ) {
     val isFromUser: Boolean
         get() = author == USER_PREFIX
+
+//    val messageWithoutPrefixPostfix: String
+//        get() = message.removePrefix(messagePrefix).removeSuffix(messagePostfix)
 }

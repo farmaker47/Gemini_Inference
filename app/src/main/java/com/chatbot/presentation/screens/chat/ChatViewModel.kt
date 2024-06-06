@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 sealed interface ChatAction {
     data object OnSendMessage: ChatAction
@@ -52,14 +53,50 @@ class ChatViewModel @Inject constructor(
     init {
         observeMessages()
 
+        val fromMs: Long = 500L
+        val toMs: Long = 1500L
+
         // demo of adding messages through the messageManager that reflect back on viewModel's "state"
         viewModelScope.launch {
-            delay(1000)
-            messageManager.addMessage("abc", "ioannis")
-            delay(1000)
-            messageManager.addMessage("def", "george")
-            delay(1000)
-            messageManager.addMessage("hij", "eleni")
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Hey, how are you doing today?", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("I'm doing well, thanks! How about you?", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("I'm great. I've been working on a new project.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("It's a chatbot that can assist with coding tasks. The progress has been steady so far.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("That sounds really interesting! What kind of coding tasks can it help with?", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("It can help with debugging, providing code snippets, and even explaining complex concepts.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("I'm hoping it will make coding a bit easier for beginners.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("That's amazing. How do you plan to test it?", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("I'm going to run a series of test cases and get feedback from some beta users.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Sounds like a solid plan.", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Yeah, I'm excited to see how it performs.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("By the way, have you finished those reports you were working on?", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Almost. Just need to wrap up a few more details.", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Got it. Reports can be tedious, but they're important.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Absolutely. It's part of the job.", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Anyway, I should get back to work on the chatbot.", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Sure, let me know if you need any help.", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Will do. Talk to you later!", MODEL_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Bye!", USER_PREFIX)
+
         }
     }
 
@@ -77,10 +114,11 @@ class ChatViewModel @Inject constructor(
         when (action) {
             is ChatAction.OnSendMessage -> {
                 // Handle send message action
-                Log.d("IOANNIS", "onAction: ")
+                Log.d("IOANNIS", "onAction -> OnSendMessage: ")
                 sendMessage(state.textInput)
             }
             is ChatAction.OnMicPressed -> {
+                Log.d("IOANNIS", "onAction -> OnMicPressed: ")
                 // Handle mic pressed action
             }
         }
