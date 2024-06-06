@@ -1,9 +1,6 @@
-package com.chatbot
+package com.chatbot.presentation.screens.loading
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,8 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import com.chatbot.presentation.components.LoadingIndicator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -23,7 +20,6 @@ import kotlinx.coroutines.withContext
 internal fun LoadingRoute(
     onModelLoaded: () -> Unit = { }
 ) {
-    val context = LocalContext.current.applicationContext
     var errorMessage by remember { mutableStateOf("") }
 
     if (errorMessage != "") {
@@ -46,16 +42,6 @@ internal fun LoadingRoute(
             }
         }
     })
-}
-
-@Composable
-fun LoadingIndicator() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-    }
 }
 
 @Composable

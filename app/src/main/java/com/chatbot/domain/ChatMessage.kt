@@ -1,4 +1,4 @@
-package com.chatbot
+package com.chatbot.domain
 
 import java.util.UUID
 

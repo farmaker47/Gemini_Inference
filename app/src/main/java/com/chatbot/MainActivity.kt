@@ -3,28 +3,18 @@ package com.chatbot
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import com.chatbot.presentation.NavigationRoot
+import com.chatbot.presentation.components.AppBar
 import com.chatbot.ui.theme.GeminiInferenceTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-const val START_SCREEN = "start_screen"
-const val CHAT_SCREEN = "chat_screen"
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,47 +30,10 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         color = MaterialTheme.colorScheme.background,
                     ) {
-                        val navController = rememberNavController()
-
-                        NavHost(
-                            navController = navController,
-                            startDestination = START_SCREEN
-                        ) {
-                            composable(START_SCREEN) {
-                                LoadingRoute(
-                                    onModelLoaded = {
-                                        navController.navigate(CHAT_SCREEN) {
-                                            popUpTo(START_SCREEN) { inclusive = true }
-                                            launchSingleTop = true
-                                        }
-                                    }
-                                )
-                            }
-
-                            composable(CHAT_SCREEN) {
-                                ChatRoute()
-                            }
-                        }
+                        NavigationRoot()
                     }
                 }
             }
-        }
-    }
-
-    // TopAppBar is marked as experimental in Material 3
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun AppBar() {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-            )
         }
     }
 }

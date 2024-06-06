@@ -1,4 +1,4 @@
-package com.chatbot
+package com.chatbot.presentation.screens.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,28 +29,41 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.chatbot.R
+import com.chatbot.domain.ChatMessage
+import com.chatbot.presentation.utils.ObserveAsEvents
 
 @Composable
 internal fun ChatRoute(
-    chatViewModel: ChatViewModel = viewModel()
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
-    // val uiState by chatViewModel.uiState.collectAsStateWithLifecycle()
-    // val textInputEnabled by chatViewModel.isTextInputEnabled.collectAsStateWithLifecycle()
-    ChatScreen(
-        chatViewModel
-    ) { message ->
-        chatViewModel.sendMessage(message)
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is ChatEvent.Error -> TODO()
+            is ChatEvent.OnMessageReceived -> TODO()
+            ChatEvent.OnSendMessage -> TODO()
+        }
     }
+    
+    ChatScreen(
+        viewModel.state,
+        viewModel::onAction
+    )
 }
 
 @Composable
 fun ChatScreen(
-    chatViewModel: ChatViewModel = viewModel(),
-    textInputEnabled: Boolean = true,
-    onSendMessage: (String) -> Unit
+    state: ChatState,
+    onAction: (ChatAction) -> Unit,
 ) {
     var userMessage by rememberSaveable { mutableStateOf("") }
 
@@ -151,4 +164,13 @@ fun ChatItem(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ChatScreenPreview() {
+    ChatScreen(
+        state = ChatState(),
+        onAction = {}
+    )
 }
