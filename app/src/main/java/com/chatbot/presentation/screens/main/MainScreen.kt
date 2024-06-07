@@ -2,6 +2,7 @@ package com.chatbot.presentation.screens.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -12,20 +13,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.getString
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.chatbot.R
+import com.chatbot.presentation.base.LoadingConfig
+import com.chatbot.presentation.base.ScreenWithLoadingIndicator
+import com.chatbot.presentation.base.TopAppBarConfig
 import com.chatbot.presentation.components.AppButton
-import com.chatbot.presentation.components.LoadingOverlay
+import com.chatbot.presentation.utils.UiText
 
 @Composable
 fun MainScreenRoot(
+    paddingValues: PaddingValues,
     onStartNewChat: () -> Unit,
     onContinueExistingChat: () -> Unit,
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-
+    ScreenWithLoadingIndicator(
+        topAppBarConfig = TopAppBarConfig(title = UiText.StringResource(R.string.app_name).asString()),
+        // if set to critical content, blocks back button while loader is spinning (useful for scenarios like spinning during checkout process)
+        loadingConfig = LoadingConfig(viewModel.state.isLoading, criticalContent = true),
+        paddingValues = paddingValues
     ) {
         MainScreen(
             state = viewModel.state,
@@ -36,10 +44,6 @@ fun MainScreenRoot(
                 }
             }
         )
-
-        if (viewModel.state.isLoading) {
-            LoadingOverlay()
-        }
     }
 }
 

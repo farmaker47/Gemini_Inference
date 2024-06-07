@@ -29,17 +29,23 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chatbot.R
 import com.chatbot.domain.ChatMessage
+import com.chatbot.presentation.base.LoadingConfig
+import com.chatbot.presentation.base.ScreenWithLoadingIndicator
+import com.chatbot.presentation.base.TopAppBarConfig
 import com.chatbot.presentation.components.AppBar
 import com.chatbot.presentation.components.StyledBasicTextField
 import com.chatbot.presentation.utils.ObserveAsEvents
+import com.chatbot.presentation.utils.UiText
 import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @Composable
 internal fun ChatRoot(
+    paddingValues: PaddingValues,
     useExistingChat: Boolean = false,
-    viewModel: ChatViewModel = hiltViewModel()
+    viewModel: ChatViewModel = hiltViewModel(),
+    onNavigateUp: () -> Unit
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -56,11 +62,21 @@ internal fun ChatRoot(
         }
     }
 
+    ScreenWithLoadingIndicator(
+        topAppBarConfig = TopAppBarConfig(
+            title = UiText.StringResource(R.string.active_chat).asString(),
+            onBackPress = { onNavigateUp() }
+        ),
+        // if set to critical content, blocks back button while loader is spinning (useful for scenarios like spinning during checkout process)
+        loadingConfig = LoadingConfig(viewModel.state.isLoading, criticalContent = true),
 
-    ChatScreen(
-        viewModel.state,
-        viewModel::onAction
-    )
+        paddingValues = paddingValues
+    ) {
+        ChatScreen(
+            viewModel.state,
+            viewModel::onAction
+        )
+    }
 }
 
 private const val s = "textState"
