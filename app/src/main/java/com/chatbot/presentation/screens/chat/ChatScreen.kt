@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,23 +92,21 @@ fun ChatScreen(
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     // Monitor changes in messages to handle scroll behavior
+
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-            val lastItemIndex = state.messages.size - 2 // Get the index of the last item before the new one is added
+            val preLastItemIndex = state.messages.size - 2 // Get the index of the last item before the new one is added
+            val lastVisibleItem = state.messages.size - 1 // Get the index of the last item
 
-            if (lastVisibleItemIndex == lastItemIndex) {
+            if (lastVisibleItemIndex == preLastItemIndex) {
                 // If the last item before the new one was visible, scroll to the new bottom
                 listState.animateScrollToItem(state.messages.size - 1)
-                showButton = false
-            } else {
-                // Otherwise, show the floating button
-                showButton = true
             }
+
+            showButton = (lastVisibleItemIndex != preLastItemIndex && lastVisibleItemIndex != lastVisibleItem)
         }
     }
-
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
