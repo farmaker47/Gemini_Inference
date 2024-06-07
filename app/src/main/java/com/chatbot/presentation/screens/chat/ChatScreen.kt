@@ -64,12 +64,11 @@ internal fun ChatRoot(
 
     ScreenWithLoadingIndicator(
         topAppBarConfig = TopAppBarConfig(
-            title = UiText.StringResource(R.string.active_chat).asString(),
+            title = UiText.StringResource(if (useExistingChat) R.string.existing_chat else R.string.new_chat).asString(),
             onBackPress = { onNavigateUp() }
         ),
         // if set to critical content, blocks back button while loader is spinning (useful for scenarios like spinning during checkout process)
         loadingConfig = LoadingConfig(viewModel.state.isLoading, criticalContent = true),
-
         paddingValues = paddingValues
     ) {
         ChatScreen(
