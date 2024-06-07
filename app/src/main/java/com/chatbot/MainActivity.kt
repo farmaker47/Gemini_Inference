@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.chatbot.presentation.NavigationRoot
 import com.chatbot.presentation.components.AppBar
 import com.chatbot.ui.theme.GeminiInferenceTheme
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             GeminiInferenceTheme {
                 Scaffold(
-                    topBar = { AppBar() }
+                    topBar = { AppBar(stringResource(R.string.app_name)) }
                 ) { innerPadding ->
                     // A surface container using the 'background' color from the theme
                     Surface(

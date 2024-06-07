@@ -4,16 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.chatbot.presentation.screens.chat.ChatRoute
-import com.chatbot.presentation.screens.loading.LoadingRoute
+import androidx.navigation.toRoute
+import com.chatbot.presentation.screens.chat.ChatRoot
+import com.chatbot.presentation.screens.main.MainScreenRoot
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
     @Serializable
-    object SplashScreen
+    object MainScreen
 
     @Serializable
-    object ChatScreen
+    data class ChatScreen(
+        val useExistingChat: Boolean
+    )
 }
 
 @Composable
@@ -22,21 +25,27 @@ fun NavigationRoot() {
 
     NavHost(
         navController = navController,
-        startDestination = Route.SplashScreen
+        startDestination = Route.MainScreen
     ) {
-        composable<Route.SplashScreen> {
-            LoadingRoute(
-                onModelLoaded = {
-                    navController.navigate(Route.ChatScreen) {
-                        popUpTo(Route.SplashScreen) { inclusive = true }
-                        launchSingleTop = true
-                    }
+        composable<Route.MainScreen> {
+            MainScreenRoot(
+                onStartNewChat = {
+                    navController.navigate(
+                        Route.ChatScreen(useExistingChat = false)
+                    )
+                },
+
+                onContinueExistingChat = {
+                    navController.navigate(
+                        Route.ChatScreen(useExistingChat = true)
+                    )
                 }
             )
         }
 
         composable<Route.ChatScreen> {
-            ChatRoute()
+            val args = it.toRoute<Route.ChatScreen>()
+            ChatRoot(args.useExistingChat)
         }
     }
 }

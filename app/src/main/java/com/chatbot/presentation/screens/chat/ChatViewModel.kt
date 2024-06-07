@@ -11,6 +11,7 @@ import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.USER_PREFIX
 import com.chatbot.presentation.utils.UiText
+import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -41,7 +42,7 @@ sealed interface ChatEvent {
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val messageManager: GeminiMessageManager
+    private val messageManager: GeminiMessageManager,
 ) : ViewModel() {
 
     var state by mutableStateOf(ChatState())
@@ -52,11 +53,19 @@ class ChatViewModel @Inject constructor(
 
     init {
         observeMessages()
+    }
 
-        val fromMs: Long = 500L
-        val toMs: Long = 1500L
+    fun initialize(useExistingChat: Boolean) {
+        // if we use existing chat, for the dummy code here
+        // we will remove delay to mock a chat that pre-exists
 
-// demo of adding messages through the messageManager that reflect back on viewModel's "state"
+        // if we don't useExistingChat, then we add delay between messages
+        // to mock an ongoing chat starting from zero.
+
+        val fromMs: Long = if (useExistingChat) 0L else  500L
+        val toMs: Long = if (useExistingChat) 1L else 1500L
+
+        // demo of adding messages through the messageManager that reflect back on viewModel's "state"
         viewModelScope.launch {
             delay(Random.nextLong(fromMs, toMs))
             messageManager.addMessage("Hey Gemini, have you ever thought about how AI will change the world?", USER_PREFIX)

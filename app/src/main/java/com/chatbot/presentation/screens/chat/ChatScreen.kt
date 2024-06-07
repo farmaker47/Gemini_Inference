@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chatbot.R
 import com.chatbot.domain.ChatMessage
+import com.chatbot.presentation.components.AppBar
 import com.chatbot.presentation.components.StyledBasicTextField
 import com.chatbot.presentation.utils.ObserveAsEvents
 import kotlinx.coroutines.launch
@@ -35,11 +37,16 @@ import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @Composable
-internal fun ChatRoute(
+internal fun ChatRoot(
+    useExistingChat: Boolean = false,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.initialize(useExistingChat)
+    }
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
@@ -48,6 +55,7 @@ internal fun ChatRoute(
             ChatEvent.OnSendMessage -> TODO()
         }
     }
+
 
     ChatScreen(
         viewModel.state,
@@ -180,7 +188,7 @@ fun ChatScreen(
                 )
 
                 Icon(
-                    Icons.Default.Send,
+                    Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.action_send),
                     modifier = Modifier
                         .background(
