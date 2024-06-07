@@ -2,16 +2,7 @@ package com.chatbot.presentation.screens.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,22 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +40,7 @@ internal fun ChatRoute(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    
+
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is ChatEvent.Error -> TODO()
@@ -70,7 +48,7 @@ internal fun ChatRoute(
             ChatEvent.OnSendMessage -> TODO()
         }
     }
-    
+
     ChatScreen(
         viewModel.state,
         viewModel::onAction
@@ -92,7 +70,6 @@ fun ChatScreen(
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
     // Monitor changes in messages to handle scroll behavior
-
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
@@ -108,7 +85,11 @@ fun ChatScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding() // Adjust padding when the keyboard is visible
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),
@@ -126,7 +107,6 @@ fun ChatScreen(
                 ) {
                     LazyColumn(
                         modifier = Modifier
-                            //.weight(1f)
                             .fillMaxSize()
                             .padding(horizontal = 8.dp),
                         state = listState
@@ -152,7 +132,6 @@ fun ChatScreen(
                                 )
                                 .clip(CircleShape)
                                 .clickable {
-                                    //onAction(ChatAction.OnMicPressed)
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(state.messages.size - 1)
                                         showButton = false
@@ -164,7 +143,6 @@ fun ChatScreen(
                 }
             }
 
-
             HorizontalDivider(
                 modifier = Modifier
                     .height(4.dp)
@@ -174,7 +152,8 @@ fun ChatScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     Icons.Default.Mic,
