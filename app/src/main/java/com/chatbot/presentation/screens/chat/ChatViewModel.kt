@@ -21,7 +21,7 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 sealed interface ChatAction {
-    data object OnSendMessage: ChatAction
+    data class OnSendMessage(val text: String): ChatAction
     data object OnMicPressed: ChatAction
 }
 
@@ -56,47 +56,48 @@ class ChatViewModel @Inject constructor(
         val fromMs: Long = 500L
         val toMs: Long = 1500L
 
-        // demo of adding messages through the messageManager that reflect back on viewModel's "state"
+// demo of adding messages through the messageManager that reflect back on viewModel's "state"
         viewModelScope.launch {
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Hey, how are you doing today?", MODEL_PREFIX)
+            messageManager.addMessage("Hey Gemini, have you ever thought about how AI will change the world?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("I'm doing well, thanks! How about you?", USER_PREFIX)
+            messageManager.addMessage("Hi! Absolutely, AI has the potential to revolutionize many aspects of our lives.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("I'm great. I've been working on a new project.", MODEL_PREFIX)
+            messageManager.addMessage("Yeah, I've read about that. What do you think will be the most significant change?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("It's a chatbot that can assist with coding tasks. The progress has been steady so far.", MODEL_PREFIX)
+            messageManager.addMessage("One major change could be in healthcare, with AI improving diagnostics and personalized treatment plans.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("That sounds really interesting! What kind of coding tasks can it help with?", USER_PREFIX)
+            messageManager.addMessage("That's true. Imagine getting a diagnosis faster and more accurately than ever before.", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("It can help with debugging, providing code snippets, and even explaining complex concepts.", MODEL_PREFIX)
+            messageManager.addMessage("Exactly. It can also assist doctors in managing patient care more efficiently.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("I'm hoping it will make coding a bit easier for beginners.", MODEL_PREFIX)
+            messageManager.addMessage("What about in our daily lives? How will AI impact that?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("That's amazing. How do you plan to test it?", USER_PREFIX)
+            messageManager.addMessage("AI will likely automate routine tasks, making our daily lives more convenient and giving us more free time.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("I'm going to run a series of test cases and get feedback from some beta users.", MODEL_PREFIX)
+            messageManager.addMessage("Like smart homes adjusting lighting and temperature based on our preferences?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Sounds like a solid plan.", USER_PREFIX)
+            messageManager.addMessage("Exactly! Smart homes will become more intuitive and responsive to our needs.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Yeah, I'm excited to see how it performs.", MODEL_PREFIX)
+            messageManager.addMessage("I'm also excited about how AI can improve transportation with self-driving cars.", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("By the way, have you finished those reports you were working on?", MODEL_PREFIX)
+            messageManager.addMessage("Self-driving cars will make commuting safer and more efficient, reducing accidents caused by human error.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Almost. Just need to wrap up a few more details.", USER_PREFIX)
+            messageManager.addMessage("Do you think AI will take over many jobs though?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Got it. Reports can be tedious, but they're important.", MODEL_PREFIX)
+            messageManager.addMessage("AI will certainly change the job landscape, but it will also create new opportunities in tech and other fields.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Absolutely. It's part of the job.", USER_PREFIX)
+            messageManager.addMessage("That's reassuring. So, there will be a shift rather than a loss of jobs.", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Anyway, I should get back to work on the chatbot.", MODEL_PREFIX)
+            messageManager.addMessage("Exactly. The key is for people to adapt and acquire new skills to stay relevant.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Sure, let me know if you need any help.", USER_PREFIX)
+            messageManager.addMessage("What about education? How can AI help there?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Will do. Talk to you later!", MODEL_PREFIX)
+            messageManager.addMessage("AI can personalize learning experiences, providing tailored resources and feedback to students.", MODEL_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            messageManager.addMessage("Bye!", USER_PREFIX)
-
+            messageManager.addMessage("That would make learning much more efficient and engaging.", USER_PREFIX)
+            delay(Random.nextLong(fromMs, toMs))
+            messageManager.addMessage("Definitely. AI has the potential to make education more accessible and effective for everyone.", MODEL_PREFIX)
         }
     }
 
@@ -114,8 +115,8 @@ class ChatViewModel @Inject constructor(
         when (action) {
             is ChatAction.OnSendMessage -> {
                 // Handle send message action
-                Log.d("IOANNIS", "onAction -> OnSendMessage: ")
-                sendMessage(state.textInput)
+                Log.d("IOANNIS", "onAction -> OnSendMessage: ${action.text}")
+                sendMessage(action.text)
             }
             is ChatAction.OnMicPressed -> {
                 Log.d("IOANNIS", "onAction -> OnMicPressed: ")
