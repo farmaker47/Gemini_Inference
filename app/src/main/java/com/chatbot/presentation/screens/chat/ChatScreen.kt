@@ -37,7 +37,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -210,7 +209,12 @@ fun ChatScreen(
                         )
                         .clip(CircleShape)
                         .clickable {
+                            // send the text
                             onAction(ChatAction.OnSendMessage(textState.text))
+                            // and clear the text field
+                            textState = textState.copy(
+                                text = ""
+                            )
                         }
                         .padding(8.dp)
                 )
