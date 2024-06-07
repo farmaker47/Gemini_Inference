@@ -85,6 +85,7 @@ fun ChatScreen(
     state: ChatState,
     onAction: (ChatAction) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var showButton by rememberSaveable { mutableStateOf(false) }
@@ -215,6 +216,8 @@ fun ChatScreen(
                             textState = textState.copy(
                                 text = ""
                             )
+                            // finally, dismiss the keyboard
+                            keyboardController?.hide()
                         }
                         .padding(8.dp)
                 )
