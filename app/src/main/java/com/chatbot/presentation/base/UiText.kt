@@ -1,4 +1,4 @@
-package com.chatbot.presentation.utils
+package com.chatbot.presentation.base
 
 import android.content.Context
 import androidx.annotation.StringRes

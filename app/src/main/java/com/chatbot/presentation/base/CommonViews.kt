@@ -3,10 +3,6 @@ package com.chatbot.presentation.base
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,20 +10,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,13 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -53,30 +29,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.chatbot.presentation.base.scaffold.ScaffoldViewModel
-
-/**
- * A Circular Progress Indicator that blocks background touches
- * and also blocks "back button" press while loading for critical loading operations.
- */
-@Composable
-fun LoadingIndicator(isLoading: Boolean, isCritical: Boolean) {
-    if (isLoading) {
-        if (isCritical) {
-            BackHandler(enabled = true) { }
-        }
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.2f))
-                .pointerInput(Unit) {
-                    detectTapGestures { }
-                }
-        ) {
-            CircularProgressIndicator()
-        }
-    }
-}
 
 @Composable
 private fun ContentWithLifecycleEvents(
@@ -196,86 +148,6 @@ fun ScreenWithLoadingIndicator (
             content()
         }
         LoadingIndicator(loadingConfig.isLoading, loadingConfig.criticalContent)
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyTopAppBar(title: String? = null, onBackPress: (() -> Unit)? = null) {
-
-    TopAppBar(
-        title = { Text(title ?: "", color = MaterialTheme.colorScheme.onPrimaryContainer) },
-        actions = {} ,
-
-        navigationIcon = {
-            onBackPress?.let {
-                IconButton(onClick = it) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
-            }
-        },
-
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    )
-}
-
-// https://developer.android.com/reference/kotlin/androidx/compose/material3/pulltorefresh/package-summary
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PullToRefreshList (
-    isRefreshing: Boolean,
-    onPull: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    val state = rememberPullToRefreshState()
-    var started by rememberSaveable { mutableStateOf(false) }
-
-    if (!isRefreshing && started) {
-        state.endRefresh()
-        started = false
-    }
-
-    if (state.isRefreshing) {
-        LaunchedEffect(state.isRefreshing) {
-            onPull()
-            started = true
-        }
-    }
-    val scaleFraction = if (state.isRefreshing) 1f else
-        LinearOutSlowInEasing.transform(state.progress).coerceIn(0f, 1f)
-
-    Box(Modifier.nestedScroll(state.nestedScrollConnection)) {
-        content()
-
-        PullToRefreshContainer(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .graphicsLayer(scaleX = scaleFraction, scaleY = scaleFraction),
-            state = state,
-        )
-    }
-}
-
-@Composable
-fun NoNetworkDialog(showDialog: Boolean, onContinueOffline: () -> Unit, onQuit: () -> Unit) {
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { },
-            title = { Text("No Network Connection") },
-            text = { Text("You are not connected to the internet. Do you want to continue in offline mode or quit the app?") },
-            confirmButton = {
-                TextButton(onClick = onContinueOffline) {
-                    Text("Continue Offline")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onQuit) {
-                    Text("Quit App")
-                }
-            }
-        )
     }
 }
 

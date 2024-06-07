@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,10 +31,9 @@ import com.chatbot.domain.ChatMessage
 import com.chatbot.presentation.base.LoadingConfig
 import com.chatbot.presentation.base.ScreenWithLoadingIndicator
 import com.chatbot.presentation.base.TopAppBarConfig
-import com.chatbot.presentation.components.AppBar
-import com.chatbot.presentation.components.StyledBasicTextField
-import com.chatbot.presentation.utils.ObserveAsEvents
-import com.chatbot.presentation.utils.UiText
+import com.chatbot.presentation.components.AppTextField
+import com.chatbot.presentation.base.ObserveAsEvents
+import com.chatbot.presentation.base.UiText
 import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -193,7 +191,7 @@ fun ChatScreen(
                         .padding(8.dp)
                 )
 
-                StyledBasicTextField(
+                AppTextField(
                     textState = textState,
                     onTextChange = { textState = it },
                     underlineColor = MaterialTheme.colorScheme.outline,

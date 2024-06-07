@@ -10,8 +10,7 @@ import com.chatbot.data.GeminiMessageManager
 import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.USER_PREFIX
-import com.chatbot.presentation.utils.UiText
-import dagger.assisted.Assisted
+import com.chatbot.presentation.base.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel

@@ -13,14 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.getString
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chatbot.R
 import com.chatbot.presentation.base.LoadingConfig
 import com.chatbot.presentation.base.ScreenWithLoadingIndicator
 import com.chatbot.presentation.base.TopAppBarConfig
 import com.chatbot.presentation.components.AppButton
-import com.chatbot.presentation.utils.UiText
+import com.chatbot.presentation.base.UiText
 
 @Composable
 fun MainScreenRoot(

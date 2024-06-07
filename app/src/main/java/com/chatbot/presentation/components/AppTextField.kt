@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun StyledBasicTextField(
+fun AppTextField(
     textState: TextFieldValue,
     modifier: Modifier = Modifier,
     underlineColor: Color = Color.Blue,
