@@ -47,6 +47,7 @@ class GeminiMessageManager @Inject constructor(
     override fun appendMessage(id: String, text: String, done: Boolean) {
         val index = _messages.indexOfFirst { it.id == id }
         if (index != -1) {
+            val pureText = text
             val newText = if (done) {
                 // Append the Suffix when model is done generating the response
                 _messages[index].message + text + END_TURN
@@ -54,13 +55,14 @@ class GeminiMessageManager @Inject constructor(
                 // Append the text
                 _messages[index].message + text
             }
-            _messages[index] = _messages[index].copy(message = newText, isLoading = false)
+            _messages[index] = _messages[index].copy(text = pureText, message = newText, isLoading = false)
             _messagesFlow.value = _messages.toList() // update the flow with a new list
         }
     }
 
     override fun addMessage(text: String, author: String): String {
         val chatMessage = ChatMessage(
+            text = text,
             message = "$START_TURN$author\n$text$END_TURN",
             author = author
         )
