@@ -27,5 +27,5 @@ interface MessageManager {
      * Creates a new message with the specified text and author.
      * Return the id of that message.
      */
-    fun addMessage(text: String, author: String): String
+    fun addMessage(text: String, author: String): ChatMessage
 }

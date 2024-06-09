@@ -33,12 +33,12 @@ class ChatMessageManager @Inject constructor(
         }
     }
 
-    override fun addMessage(text: String, author: String): String {
+    override fun addMessage(text: String, author: String): ChatMessage {
         val chatMessage = ChatMessage(
             message = text,
             author = author
         )
         _messages.add(chatMessage)
-        return chatMessage.id
+        return chatMessage
     }
 }

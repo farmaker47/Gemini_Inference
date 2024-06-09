@@ -12,7 +12,7 @@ interface ChatDAO {
     suspend fun saveAll(message: List<ChatMessageDB>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun append(message: ChatMessageDB)
+    suspend fun addMessage(message: ChatMessageDB)
 
     @Query(value = "DELETE FROM chat_message")
     suspend fun deleteAllMessages()

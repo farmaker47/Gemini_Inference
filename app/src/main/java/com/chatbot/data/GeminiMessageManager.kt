@@ -60,7 +60,7 @@ class GeminiMessageManager @Inject constructor(
         }
     }
 
-    override fun addMessage(text: String, author: String): String {
+    override fun addMessage(text: String, author: String): ChatMessage {
         val chatMessage = ChatMessage(
             text = text,
             message = "$START_TURN$author\n$text$END_TURN",
@@ -68,6 +68,6 @@ class GeminiMessageManager @Inject constructor(
         )
         _messages.add(chatMessage)
         _messagesFlow.value = _messages.toList() // update the flow with a new list
-        return chatMessage.id
+        return chatMessage
     }
 }

@@ -8,6 +8,7 @@ import java.util.UUID
 data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val text: String = "",
+    val timestamp: Long = 0,
     val message: String = "",
     val author: String,
     val isLoading: Boolean = false

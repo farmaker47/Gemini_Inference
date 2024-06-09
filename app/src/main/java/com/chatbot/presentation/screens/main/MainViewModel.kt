@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chatbot.domain.ChatRepository
 import com.chatbot.presentation.base.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -31,7 +32,9 @@ data class MainViewState(
 
 
 @HiltViewModel
-class MainViewModel @Inject constructor(): ViewModel() {
+class MainViewModel @Inject constructor(
+    chatRepository: ChatRepository
+): ViewModel() {
 
     var state by mutableStateOf(MainViewState())
         private set
@@ -48,13 +51,14 @@ class MainViewModel @Inject constructor(): ViewModel() {
                 isLoading = true
             )
 
-            delay(2000L)
+            chatRepository.getMessages().collect { messages ->
+                // Log.d("LocalCache", "initialize: $messages")
 
-            // state to hide loading indicator
-            state = state.copy(
-                continueChatButtonEnabled = true,
-                isLoading = false
-            )
+                state = state.copy(
+                    continueChatButtonEnabled = messages.isNotEmpty(),
+                    isLoading = false
+                )
+            }
         }
     }
 
@@ -64,5 +68,4 @@ class MainViewModel @Inject constructor(): ViewModel() {
             MainViewAction.StartNewChat -> TODO()
         }
     }
-
 }
