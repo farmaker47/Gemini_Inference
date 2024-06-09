@@ -76,8 +76,14 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.hilt.navigation.fragment)
 
-    implementation(libs.lazycolumnscrollbar)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
+    //LazyColumn with Scrollbar
+    implementation(libs.lazycolumnscrollbar)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
