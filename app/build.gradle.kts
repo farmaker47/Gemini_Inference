@@ -52,6 +52,13 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    ndkVersion = "25.1.8937393"
 }
 
 dependencies {
@@ -84,6 +91,12 @@ dependencies {
 
     //LazyColumn with Scrollbar
     implementation(libs.lazycolumnscrollbar)
+
+    // TensorFlow Lite
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.gpu)
+    implementation(libs.tensorflow.lite.gpu.api)
+    implementation(libs.tensorflow.lite.support)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
