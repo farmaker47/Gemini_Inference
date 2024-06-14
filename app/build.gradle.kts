@@ -105,4 +105,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Api for permissions.
+    implementation(libs.accompanist.permissions)
 }

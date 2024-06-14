@@ -21,6 +21,7 @@ kotlinxSerialization = "2.0.0"
 kotlinxSerializationJson = "1.6.3"
 navigationCompose = "2.8.0-beta02"
 room = "2.6.1"
+accompanist-permisions = "0.30.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,6 +55,7 @@ tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", v
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 lazycolumnscrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumnscrollbar" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permisions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

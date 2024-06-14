@@ -253,7 +253,7 @@ class ChatViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Default) {
                 // Offline speech to text
                 val transcribedText = whisperEngine.transcribeFile(outputFileWav.absolutePath)
-                Log.e( "APP" , "Transcribed text: ${transcribedText}" )
+                Log.v( "APP" , "Transcribed text: ${transcribedText}" )
                 state = state.copy(textInput = transcribedText)
             }
         } catch (e: RuntimeException) {

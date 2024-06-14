@@ -1,5 +1,11 @@
 package com.chatbot.presentation.screens.chat
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chatbot.R
 import com.chatbot.domain.ChatMessage
@@ -34,6 +41,10 @@ import com.chatbot.presentation.base.TopAppBarConfig
 import com.chatbot.presentation.components.AppTextField
 import com.chatbot.presentation.base.ObserveAsEvents
 import com.chatbot.presentation.base.UiText
+import com.chatbot.presentation.components.PermissionAudioRationalDialog
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
@@ -79,17 +90,36 @@ internal fun ChatRoot(
 
 private const val s = "textState"
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ChatScreen(
     state: ChatState,
     onAction: (ChatAction) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var showButton by rememberSaveable { mutableStateOf(false) }
     var textState by remember { mutableStateOf(TextFieldValue("")) }
+    val showAudioRationalDialog = remember { mutableStateOf(false) }
+    val permissionAudio = rememberPermissionState(
+        permission = Manifest.permission.RECORD_AUDIO
+    )
+    val launcherAudio = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { permissionGranted ->
+        if (permissionGranted) {
+            // isLocked = false
+        } else {
+            if (permissionAudio.status.shouldShowRationale) {
+                // Show a rationale if needed (optional)
+                showAudioRationalDialog.value = true
+            } else {
+                showAudioRationalDialog.value = true
+            }
+        }
+    }
 
     // Monitor changes in messages to handle scroll behavior
     LaunchedEffect(state.messages.size) {
@@ -188,6 +218,8 @@ fun ChatScreen(
                         .clip(CircleShape)
                         .clickable {
                             onAction(ChatAction.OnMicPressed)
+                            // Check for audio permissions.
+                            launcherAudio.launch(Manifest.permission.RECORD_AUDIO)
                         }
                         .padding(8.dp)
                 )
@@ -223,6 +255,21 @@ fun ChatScreen(
                         .padding(8.dp)
                 )
             }
+        }
+
+        if (showAudioRationalDialog.value) {
+            PermissionAudioRationalDialog(
+                onOpenSettings = {
+                    val intent = Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", context.packageName, null)
+                    )
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ContextCompat.startActivity(context, intent, null)
+                },
+                onDismiss = {
+                    showAudioRationalDialog.value = false
+                })
         }
     }
 }
