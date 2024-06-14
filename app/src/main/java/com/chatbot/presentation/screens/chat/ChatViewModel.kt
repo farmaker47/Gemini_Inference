@@ -1,5 +1,7 @@
 package com.chatbot.presentation.screens.chat
 
+import android.content.Context
+import android.media.MediaRecorder
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +13,9 @@ import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.ChatRepository
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.USER_PREFIX
+import com.chatbot.domain.speech2text.IWhisperEngine
+import com.chatbot.domain.speech2text.Recorder
+import com.chatbot.domain.speech2text.WhisperEngine
 import com.chatbot.domain.util.map
 import com.chatbot.presentation.base.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +26,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -55,6 +64,11 @@ class ChatViewModel @Inject constructor(
     private val eventChannel = Channel<ChatEvent>()
     val events = eventChannel.receiveAsFlow()
 
+    private lateinit var whisperEngine: IWhisperEngine
+    private lateinit var recorder: Recorder
+    private var isRecordingSpeech = false
+    private lateinit var outputFileWav: File
+
     init {
         observeMessages()
     }
@@ -75,6 +89,28 @@ class ChatViewModel @Inject constructor(
             } else {
                 chatRepository.deleteAllMessages()
                 //addDummyMessages()
+            }
+            state = state.copy(
+                isLoading = false
+            )
+        }
+    }
+
+    fun initializeSpeechModel(context: Context) {
+        state = state.copy(
+            isLoading = true
+        )
+        viewModelScope.launch {
+            outputFileWav = File(context.filesDir, RECORDING_FILE_WAV)
+            whisperEngine = WhisperEngine(context)
+            recorder = Recorder(context)
+            withContext( Dispatchers.IO) {
+                copyAssets(
+                    context,
+                    arrayOf("filters_vocab_en.bin", "whisper_tiny_english_14.tflite")
+                )
+                whisperEngine.initialize(MODEL_PATH, getFilePath(VOCAB_PATH, context), false)
+                recorder.setFilePath(getFilePath(RECORDING_FILE_WAV, context))
             }
             state = state.copy(
                 isLoading = false
@@ -158,7 +194,14 @@ class ChatViewModel @Inject constructor(
             }
             is ChatAction.OnMicPressed -> {
                 Log.d("IOANNIS", "onAction -> OnMicPressed: ")
-                // Handle mic pressed action
+                if (!isRecordingSpeech) {
+                    startRecordingWav()
+                    isRecordingSpeech = true
+                }
+                else {
+                    stopRecordingWav()
+                    isRecordingSpeech = false
+                }
             }
         }
     }
@@ -197,5 +240,63 @@ class ChatViewModel @Inject constructor(
         state = state.copy(
             textInputEnabled = isEnabled
         )
+    }
+
+    fun startRecordingWav() {
+        recorder.start()
+    }
+
+    fun stopRecordingWav() {
+        recorder.stop()
+
+        try {
+            viewModelScope.launch(Dispatchers.Default) {
+                // Offline speech to text
+                val transcribedText = whisperEngine.transcribeFile(outputFileWav.absolutePath)
+                Log.e( "APP" , "Transcribed text: ${transcribedText}" )
+                state = state.copy(textInput = transcribedText)
+            }
+        } catch (e: RuntimeException) {
+            Log.e("APP", e.toString())
+        } catch (e: IllegalStateException) {
+            Log.e("APP", e.toString())
+        }
+    }
+
+    // Returns file path for vocab .bin file
+    private fun getFilePath(assetName: String, context: Context): String? {
+        val outfile = File(context.filesDir, assetName)
+        if (!outfile.exists()) {
+            Log.d("APP", "File not found - " + outfile.absolutePath)
+        }
+        Log.d("APP", "Returned asset path: " + outfile.absolutePath)
+        return outfile.absolutePath
+    }
+
+    private fun copyAssets(context: Context, listFiles: Array<String>): String {
+        val extFolder = context.filesDir.absolutePath
+        try {
+            context.assets.list("")
+                ?.filter { listFiles.contains(it) }
+                ?.filter { !File(extFolder, it).exists() }
+                ?.forEach {
+                    val target = File(extFolder, it)
+                    context.assets.open(it).use { input ->
+                        FileOutputStream(target).use { output ->
+                            input.copyTo(output)
+                            Log.i("Utils", "Copied from apk assets folder to ${target.absolutePath}")
+                        }
+                    }
+                }
+        } catch (e: Exception) {
+            Log.e("Utils", "asset copy failed", e)
+        }
+        return extFolder
+    }
+
+    companion object {
+        private const val MODEL_PATH = "whisper_tiny_english_14.tflite"
+        private const val VOCAB_PATH = "filters_vocab_en.bin"
+        private const val RECORDING_FILE_WAV = "recording.wav"
     }
 }
