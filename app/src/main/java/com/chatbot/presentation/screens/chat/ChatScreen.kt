@@ -50,6 +50,7 @@ internal fun ChatRoot(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.initialize(useExistingChat)
+        viewModel.initializeSpeechModel(context)
     }
 
     ObserveAsEvents(viewModel.events) { event ->
