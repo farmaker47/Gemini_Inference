@@ -121,7 +121,7 @@ fun ChatScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { permissionGranted ->
         if (permissionGranted) {
-            // isLocked = false
+            onAction(ChatAction.OnMicPressed)
         } else {
             if (permissionAudio.status.shouldShowRationale) {
                 // Show a rationale if needed (optional)
@@ -245,7 +245,6 @@ fun ChatScreen(
                                 )
                                 .clip(CircleShape)
                                 .clickable {
-                                    onAction(ChatAction.OnMicPressed)
                                     // Check for audio permissions.
                                     launcherAudio.launch(Manifest.permission.RECORD_AUDIO)
                                 }
