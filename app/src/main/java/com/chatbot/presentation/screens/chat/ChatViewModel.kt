@@ -17,6 +17,9 @@ import com.chatbot.domain.speech2text.Recorder
 import com.chatbot.domain.speech2text.WhisperEngine
 import com.chatbot.domain.util.map
 import com.chatbot.presentation.base.UiText
+import com.google.ai.client.generativeai.BuildConfig
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -65,6 +68,11 @@ class ChatViewModel @Inject constructor(
     private lateinit var recorder: Recorder
     private lateinit var outputFileWav: File
 
+    private val generativeModel = GenerativeModel(
+        modelName = "gemini-1.5-flash",
+        apiKey = GEMINI_API_KEY
+    )
+
     init {
         observeMessages()
     }
@@ -76,7 +84,7 @@ class ChatViewModel @Inject constructor(
             )
             if (useExistingChat) {
                 chatRepository.getMessages().collect { messages ->
-                    // Log.d("LocalCache", "initialize: $messages")
+                    Log.d("LocalCache", "initialize: $messages")
                     chatState = chatState.copy(
                         messages = messages,
                         isLoading = false
@@ -253,29 +261,23 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             addMessage(userMessage, USER_PREFIX)
             // var currentMessageId: String? = _uiState.value.createLoadingMessage()
-            // TODO delete this dummy message from model and use a Gemini call.
-            delay(2000)
-            addMessage("I am the Gemini responding", MODEL_PREFIX)
-
             setInputEnabled(false)
+
             try {
                 val fullPrompt = messageManager.fullPrompt
-                /*inferenceModel.generateResponseAsync(fullPrompt)
-                inferenceModel.partialResults
-                    .collectIndexed { index, (partialResult, done) ->
-                        currentMessageId?.let {
-                            if (index == 0) {
-                                _uiState.value.appendFirstMessage(it, partialResult)
-                            } else {
-                                _uiState.value.appendMessage(it, partialResult, done)
-                            }
-                            if (done) {
-                                currentMessageId = null
-                                // Re-enable text input
-                                setInputEnabled(true)
-                            }
-                        }
-                    }*/
+                Log.e("APP_", fullPrompt)
+
+                val chat = generativeModel.startChat(
+                    history = listOf(
+                        content(role = "user") { text("Hello, I love red roses") },
+                        content(role = "model") { text("Great to meet you. What would you like to know?") }
+                    )
+                )
+                val response = chat.sendMessage("How do I plant red roses?")
+                response.text?.let { message ->
+                    // Log.v("gemini_", message)
+                    addMessage(message, MODEL_PREFIX)
+                }
             } catch (e: Exception) {
                 messageManager.addMessage(e.localizedMessage ?: "Unknown Error", MODEL_PREFIX)
                 setInputEnabled(true)
@@ -349,5 +351,7 @@ class ChatViewModel @Inject constructor(
         private const val MODEL_PATH = "whisper_tiny_english_14.tflite"
         private const val VOCAB_PATH = "filters_vocab_en.bin"
         private const val RECORDING_FILE_WAV = "recording.wav"
+        // TODO DO NOT UPLOAD TO GITHUB
+        private const val GEMINI_API_KEY = ""
     }
 }
