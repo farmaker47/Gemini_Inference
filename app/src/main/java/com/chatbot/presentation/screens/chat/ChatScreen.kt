@@ -95,6 +95,7 @@ private const val s = "textState"
 fun ChatScreen(
     chatState: ChatState,
     onAction: (ChatAction) -> Unit,
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -221,7 +222,8 @@ fun ChatScreen(
                             // Check for audio permissions.
                             launcherAudio.launch(Manifest.permission.RECORD_AUDIO)
                         }
-                        .padding(8.dp)
+                        .padding(8.dp),
+                    tint = if (viewModel.chatState.isMicPressed) Color.Green else Color.Gray
                 )
 
                 AppTextField(

@@ -37,6 +37,7 @@ sealed interface ChatAction {
 data class ChatState(
     val textInput: String = "",
     val textInputEnabled: Boolean = true,
+    val isMicPressed: Boolean = false,
     val messages: List<ChatMessage> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
@@ -62,7 +63,6 @@ class ChatViewModel @Inject constructor(
 
     private lateinit var whisperEngine: IWhisperEngine
     private lateinit var recorder: Recorder
-    private var isRecordingSpeech = false
     private lateinit var outputFileWav: File
 
     init {
@@ -233,18 +233,16 @@ class ChatViewModel @Inject constructor(
         when (action) {
             is ChatAction.OnSendMessage -> {
                 // Handle send message action
-                Log.d("IOANNIS", "onAction -> OnSendMessage: ${action.text}")
                 sendMessage(action.text)
             }
 
             is ChatAction.OnMicPressed -> {
-                Log.d("IOANNIS", "onAction -> OnMicPressed: ")
-                if (!isRecordingSpeech) {
+                if (!chatState.isMicPressed) {
                     startRecordingWav()
-                    isRecordingSpeech = true
+                    chatState = chatState.copy(isMicPressed = true)
                 } else {
                     stopRecordingWav()
-                    isRecordingSpeech = false
+                    chatState = chatState.copy(isMicPressed = false)
                 }
             }
         }
