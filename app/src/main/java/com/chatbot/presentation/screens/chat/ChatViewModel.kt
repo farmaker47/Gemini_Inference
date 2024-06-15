@@ -30,8 +30,8 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 sealed interface ChatAction {
-    data class OnSendMessage(val text: String): ChatAction
-    data object OnMicPressed: ChatAction
+    data class OnSendMessage(val text: String) : ChatAction
+    data object OnMicPressed : ChatAction
 }
 
 data class ChatState(
@@ -43,9 +43,9 @@ data class ChatState(
 )
 
 sealed interface ChatEvent {
-    data class Error(val error: UiText): ChatEvent
-    data object OnSendMessage: ChatEvent
-    data class OnMessageReceived(val message: String): ChatEvent
+    data class Error(val error: UiText) : ChatEvent
+    data object OnSendMessage : ChatEvent
+    data class OnMessageReceived(val message: String) : ChatEvent
 }
 
 @HiltViewModel
@@ -100,7 +100,7 @@ class ChatViewModel @Inject constructor(
             outputFileWav = File(context.filesDir, RECORDING_FILE_WAV)
             whisperEngine = WhisperEngine(context)
             recorder = Recorder(context)
-            withContext( Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 copyAssets(
                     context,
                     arrayOf("filters_vocab_en.bin", "whisper_tiny_english_14.tflite")
@@ -129,45 +129,93 @@ class ChatViewModel @Inject constructor(
         // demo of adding messages through the messageManager that reflect back on viewModel's "state"
         viewModelScope.launch(Dispatchers.IO) {
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Hey Gemini, have you ever thought about how AI will change the world?", USER_PREFIX)
+            addMessage(
+                "Hey Gemini, have you ever thought about how AI will change the world?",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Hi! Absolutely, AI has the potential to revolutionize many aspects of our lives.", MODEL_PREFIX)
+            addMessage(
+                "Hi! Absolutely, AI has the potential to revolutionize many aspects of our lives.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Yeah, I've read about that. What do you think will be the most significant change?", USER_PREFIX)
+            addMessage(
+                "Yeah, I've read about that. What do you think will be the most significant change?",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("One major change could be in healthcare, with AI improving diagnostics and personalized treatment plans.", MODEL_PREFIX)
+            addMessage(
+                "One major change could be in healthcare, with AI improving diagnostics and personalized treatment plans.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("That's true. Imagine getting a diagnosis faster and more accurately than ever before.", USER_PREFIX)
+            addMessage(
+                "That's true. Imagine getting a diagnosis faster and more accurately than ever before.",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Exactly. It can also assist doctors in managing patient care more efficiently.", MODEL_PREFIX)
+            addMessage(
+                "Exactly. It can also assist doctors in managing patient care more efficiently.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
             addMessage("What about in our daily lives? How will AI impact that?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("AI will likely automate routine tasks, making our daily lives more convenient and giving us more free time.", MODEL_PREFIX)
+            addMessage(
+                "AI will likely automate routine tasks, making our daily lives more convenient and giving us more free time.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Like smart homes adjusting lighting and temperature based on our preferences?", USER_PREFIX)
+            addMessage(
+                "Like smart homes adjusting lighting and temperature based on our preferences?",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Exactly! Smart homes will become more intuitive and responsive to our needs.", MODEL_PREFIX)
+            addMessage(
+                "Exactly! Smart homes will become more intuitive and responsive to our needs.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("I'm also excited about how AI can improve transportation with self-driving cars.", USER_PREFIX)
+            addMessage(
+                "I'm also excited about how AI can improve transportation with self-driving cars.",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Self-driving cars will make commuting safer and more efficient, reducing accidents caused by human error.", MODEL_PREFIX)
+            addMessage(
+                "Self-driving cars will make commuting safer and more efficient, reducing accidents caused by human error.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
             addMessage("Do you think AI will take over many jobs though?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("AI will certainly change the job landscape, but it will also create new opportunities in tech and other fields.", MODEL_PREFIX)
+            addMessage(
+                "AI will certainly change the job landscape, but it will also create new opportunities in tech and other fields.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("That's reassuring. So, there will be a shift rather than a loss of jobs.", USER_PREFIX)
+            addMessage(
+                "That's reassuring. So, there will be a shift rather than a loss of jobs.",
+                USER_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Exactly. The key is for people to adapt and acquire new skills to stay relevant.", MODEL_PREFIX)
+            addMessage(
+                "Exactly. The key is for people to adapt and acquire new skills to stay relevant.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
             addMessage("What about education? How can AI help there?", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("AI can personalize learning experiences, providing tailored resources and feedback to students.", MODEL_PREFIX)
+            addMessage(
+                "AI can personalize learning experiences, providing tailored resources and feedback to students.",
+                MODEL_PREFIX
+            )
             delay(Random.nextLong(fromMs, toMs))
             addMessage("That would make learning much more efficient and engaging.", USER_PREFIX)
             delay(Random.nextLong(fromMs, toMs))
-            addMessage("Definitely. AI has the potential to make education more accessible and effective for everyone.", MODEL_PREFIX)
+            addMessage(
+                "Definitely. AI has the potential to make education more accessible and effective for everyone.",
+                MODEL_PREFIX
+            )
         }
     }
 
@@ -188,13 +236,13 @@ class ChatViewModel @Inject constructor(
                 Log.d("IOANNIS", "onAction -> OnSendMessage: ${action.text}")
                 sendMessage(action.text)
             }
+
             is ChatAction.OnMicPressed -> {
                 Log.d("IOANNIS", "onAction -> OnMicPressed: ")
                 if (!isRecordingSpeech) {
                     startRecordingWav()
                     isRecordingSpeech = true
-                }
-                else {
+                } else {
                     stopRecordingWav()
                     isRecordingSpeech = false
                 }
@@ -281,7 +329,10 @@ class ChatViewModel @Inject constructor(
                     context.assets.open(it).use { input ->
                         FileOutputStream(target).use { output ->
                             input.copyTo(output)
-                            Log.i("Utils", "Copied from apk assets folder to ${target.absolutePath}")
+                            Log.i(
+                                "Utils",
+                                "Copied from apk assets folder to ${target.absolutePath}"
+                            )
                         }
                     }
                 }
