@@ -22,6 +22,8 @@ kotlinxSerializationJson = "1.6.3"
 navigationCompose = "2.8.0-beta02"
 room = "2.6.1"
 accompanist-permisions = "0.30.1"
+coil-compose = "2.1.0"
+coil-gif = "2.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,6 +58,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 lazycolumnscrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumnscrollbar" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permisions" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose" }
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil-gif" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
