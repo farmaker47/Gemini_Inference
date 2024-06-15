@@ -6,6 +6,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,6 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
+import coil.size.Size
 import com.chatbot.R
 import com.chatbot.domain.ChatMessage
 import com.chatbot.presentation.base.LoadingConfig
@@ -74,7 +84,8 @@ internal fun ChatRoot(
 
     ScreenWithLoadingIndicator(
         topAppBarConfig = TopAppBarConfig(
-            title = UiText.StringResource(if (useExistingChat) R.string.existing_chat else R.string.new_chat).asString(),
+            title = UiText.StringResource(if (useExistingChat) R.string.existing_chat else R.string.new_chat)
+                .asString(),
             onBackPress = { onNavigateUp() }
         ),
         // if set to critical content, blocks back button while loader is spinning (useful for scenarios like spinning during checkout process)
@@ -94,8 +105,7 @@ private const val s = "textState"
 @Composable
 fun ChatScreen(
     chatState: ChatState,
-    onAction: (ChatAction) -> Unit,
-    viewModel: ChatViewModel = hiltViewModel()
+    onAction: (ChatAction) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
@@ -126,7 +136,8 @@ fun ChatScreen(
     LaunchedEffect(chatState.messages.size) {
         if (chatState.messages.isNotEmpty()) {
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-            val preLastItemIndex = chatState.messages.size - 2 // Get the index of the last item before the new one is added
+            val preLastItemIndex =
+                chatState.messages.size - 2 // Get the index of the last item before the new one is added
             val lastVisibleItem = chatState.messages.size - 1 // Get the index of the last item
 
             if (lastVisibleItemIndex == preLastItemIndex) {
@@ -134,7 +145,8 @@ fun ChatScreen(
                 listState.animateScrollToItem(chatState.messages.size - 1)
             }
 
-            showButton = (lastVisibleItemIndex != preLastItemIndex && lastVisibleItemIndex != lastVisibleItem)
+            showButton =
+                (lastVisibleItemIndex != preLastItemIndex && lastVisibleItemIndex != lastVisibleItem)
         }
     }
 
@@ -208,23 +220,39 @@ fun ChatScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Mic,
-                    contentDescription = stringResource(R.string.action_microphone),
-                    modifier = Modifier
-                        .background(
-                            Color.Transparent,
-                            CircleShape
-                        )
-                        .clip(CircleShape)
-                        .clickable {
+                Box {
+                    this@Row.AnimatedVisibility(
+                        visible = chatState.isMicPressed,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        GifImageFromAssets(assetName = "mic_working.gif", onClicked = {
                             onAction(ChatAction.OnMicPressed)
-                            // Check for audio permissions.
-                            launcherAudio.launch(Manifest.permission.RECORD_AUDIO)
-                        }
-                        .padding(8.dp),
-                    tint = if (viewModel.chatState.isMicPressed) Color.Green else Color.Gray
-                )
+                        })
+                    }
+                    this@Row.AnimatedVisibility(
+                        visible = !chatState.isMicPressed,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Icon(
+                            Icons.Default.Mic,
+                            contentDescription = stringResource(R.string.action_microphone),
+                            modifier = Modifier
+                                .background(
+                                    Color.Transparent,
+                                    CircleShape
+                                )
+                                .clip(CircleShape)
+                                .clickable {
+                                    onAction(ChatAction.OnMicPressed)
+                                    // Check for audio permissions.
+                                    launcherAudio.launch(Manifest.permission.RECORD_AUDIO)
+                                }
+                                .padding(8.dp)
+                        )
+                    }
+                }
 
                 AppTextField(
                     textState = textState,
@@ -274,6 +302,39 @@ fun ChatScreen(
                 })
         }
     }
+}
+
+@Composable
+fun GifImageFromAssets(assetName: String, onClicked: () -> Unit) {
+    val context = LocalContext.current
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
+    }
+
+    val request = ImageRequest.Builder(context)
+        .data("file:///android_asset/$assetName")
+        .size(Size.ORIGINAL)
+        .build()
+
+    val painter = rememberAsyncImagePainter(model = request, imageLoader = imageLoader)
+
+    Image(
+        modifier = Modifier
+            .clickable {
+                onClicked()
+            }
+            .size(width = 40.dp, height = 40.dp),
+        painter = painter,
+        contentDescription = null
+    )
 }
 
 @Composable
