@@ -78,11 +78,11 @@ internal fun ChatRoot(
             onBackPress = { onNavigateUp() }
         ),
         // if set to critical content, blocks back button while loader is spinning (useful for scenarios like spinning during checkout process)
-        loadingConfig = LoadingConfig(viewModel.state.isLoading, criticalContent = true),
+        loadingConfig = LoadingConfig(viewModel.chatState.isLoading, criticalContent = true),
         paddingValues = paddingValues
     ) {
         ChatScreen(
-            viewModel.state,
+            viewModel.chatState,
             viewModel::onAction
         )
     }
@@ -93,7 +93,7 @@ private const val s = "textState"
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ChatScreen(
-    state: ChatState,
+    chatState: ChatState,
     onAction: (ChatAction) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -122,15 +122,15 @@ fun ChatScreen(
     }
 
     // Monitor changes in messages to handle scroll behavior
-    LaunchedEffect(state.messages.size) {
-        if (state.messages.isNotEmpty()) {
+    LaunchedEffect(chatState.messages.size) {
+        if (chatState.messages.isNotEmpty()) {
             val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
-            val preLastItemIndex = state.messages.size - 2 // Get the index of the last item before the new one is added
-            val lastVisibleItem = state.messages.size - 1 // Get the index of the last item
+            val preLastItemIndex = chatState.messages.size - 2 // Get the index of the last item before the new one is added
+            val lastVisibleItem = chatState.messages.size - 1 // Get the index of the last item
 
             if (lastVisibleItemIndex == preLastItemIndex) {
                 // If the last item before the new one was visible, scroll to the new bottom
-                listState.animateScrollToItem(state.messages.size - 1)
+                listState.animateScrollToItem(chatState.messages.size - 1)
             }
 
             showButton = (lastVisibleItemIndex != preLastItemIndex && lastVisibleItemIndex != lastVisibleItem)
@@ -164,7 +164,7 @@ fun ChatScreen(
                         state = listState
                     ) {
                         items(
-                            items = state.messages,
+                            items = chatState.messages,
                             key = { it.id }
                         ) {
                             ChatItem(it)
@@ -185,7 +185,7 @@ fun ChatScreen(
                                 .clip(CircleShape)
                                 .clickable {
                                     coroutineScope.launch {
-                                        listState.animateScrollToItem(state.messages.size - 1)
+                                        listState.animateScrollToItem(chatState.messages.size - 1)
                                         showButton = false
                                     }
                                 }
@@ -339,7 +339,7 @@ fun ChatItem(
 @Composable
 fun ChatScreenPreview() {
     ChatScreen(
-        state = ChatState(),
+        chatState = ChatState(),
         onAction = {}
     )
 }

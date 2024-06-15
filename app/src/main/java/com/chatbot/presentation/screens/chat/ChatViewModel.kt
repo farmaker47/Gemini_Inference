@@ -1,7 +1,6 @@
 package com.chatbot.presentation.screens.chat
 
 import android.content.Context
-import android.media.MediaRecorder
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,14 +21,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -58,7 +54,7 @@ class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository
 ) : ViewModel() {
 
-    var state by mutableStateOf(ChatState())
+    var chatState by mutableStateOf(ChatState())
         private set
 
     private val eventChannel = Channel<ChatEvent>()
@@ -75,13 +71,13 @@ class ChatViewModel @Inject constructor(
 
     fun initialize(useExistingChat: Boolean) {
         viewModelScope.launch {
-            state = state.copy(
+            chatState = chatState.copy(
                 isLoading = true
             )
             if (useExistingChat) {
                 chatRepository.getMessages().collect { messages ->
                     // Log.d("LocalCache", "initialize: $messages")
-                    state = state.copy(
+                    chatState = chatState.copy(
                         messages = messages,
                         isLoading = false
                     )
@@ -90,14 +86,14 @@ class ChatViewModel @Inject constructor(
                 chatRepository.deleteAllMessages()
                 //addDummyMessages()
             }
-            state = state.copy(
+            chatState = chatState.copy(
                 isLoading = false
             )
         }
     }
 
     fun initializeSpeechModel(context: Context) {
-        state = state.copy(
+        chatState = chatState.copy(
             isLoading = true
         )
         viewModelScope.launch {
@@ -112,7 +108,7 @@ class ChatViewModel @Inject constructor(
                 whisperEngine.initialize(MODEL_PATH, getFilePath(VOCAB_PATH, context), false)
                 recorder.setFilePath(getFilePath(RECORDING_FILE_WAV, context))
             }
-            state = state.copy(
+            chatState = chatState.copy(
                 isLoading = false
             )
         }
@@ -179,8 +175,8 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             messageManager.messagesFlow.collect { messages ->
                 // when the messageManager gets a new message, add it to the state
-                state = state.copy(messages = messages)
-                Log.d("MESSAGE ADDED", "observeMessages: ${state.messages.map { it.author }}")
+                chatState = chatState.copy(messages = messages)
+                Log.d("MESSAGE ADDED", "observeMessages: ${chatState.messages.map { it.author }}")
             }
         }
     }
@@ -206,7 +202,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendMessage(userMessage: String) {
+    private fun sendMessage(userMessage: String) {
         viewModelScope.launch(Dispatchers.IO) {
             addMessage(userMessage, USER_PREFIX)
             // var currentMessageId: String? = _uiState.value.createLoadingMessage()
@@ -237,24 +233,25 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun setInputEnabled(isEnabled: Boolean) {
-        state = state.copy(
+        chatState = chatState.copy(
             textInputEnabled = isEnabled
         )
     }
 
-    fun startRecordingWav() {
+    private fun startRecordingWav() {
         recorder.start()
     }
 
-    fun stopRecordingWav() {
+    private fun stopRecordingWav() {
         recorder.stop()
 
         try {
             viewModelScope.launch(Dispatchers.Default) {
                 // Offline speech to text
                 val transcribedText = whisperEngine.transcribeFile(outputFileWav.absolutePath)
-                Log.v( "APP" , "Transcribed text: ${transcribedText}" )
-                state = state.copy(textInput = transcribedText)
+                // Log.v( "APP" , "Transcribed text: ${transcribedText}" )
+                onAction(ChatAction.OnSendMessage(transcribedText))
+                chatState = chatState.copy(textInput = transcribedText)
             }
         } catch (e: RuntimeException) {
             Log.e("APP", e.toString())
