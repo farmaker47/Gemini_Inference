@@ -252,6 +252,10 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             addMessage(userMessage, USER_PREFIX)
             // var currentMessageId: String? = _uiState.value.createLoadingMessage()
+            // TODO delete this dummy message from model and use a Gemini call.
+            delay(2000)
+            addMessage("I am the Gemini responding", MODEL_PREFIX)
+
             setInputEnabled(false)
             try {
                 val fullPrompt = messageManager.fullPrompt
