@@ -81,6 +81,7 @@ class ChatViewModel @Inject constructor(
                         messages = messages,
                         isLoading = false
                     )
+                    messageManager.createFirstList(messages)
                 }
             } else {
                 chatRepository.deleteAllMessages()

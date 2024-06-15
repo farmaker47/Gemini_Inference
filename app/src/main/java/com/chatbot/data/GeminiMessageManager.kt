@@ -31,13 +31,19 @@ class GeminiMessageManager @Inject constructor(
             }.reversed()
 
     override val fullPrompt: String
-        get() = _messages.takeLast(4).joinToString(separator = "\n") { it.message }
+        get() = _messages.joinToString(separator = "\n") { it.message }
+            //_messages.takeLast(4).joinToString(separator = "\n") { it.message }
 
     override fun createLoadingMessage(): String {
         val chatMessage = ChatMessage(author = MODEL_PREFIX, isLoading = true)
         _messages.add(chatMessage)
         _messagesFlow.value = _messages.toList() // update the flow with a new list
         return chatMessage.id
+    }
+
+    fun createFirstList(listOfMessages: List<ChatMessage>) {
+        _messages.clear()
+        _messages.addAll(listOfMessages)
     }
 
     fun appendFirstMessage(id: String, text: String) {
