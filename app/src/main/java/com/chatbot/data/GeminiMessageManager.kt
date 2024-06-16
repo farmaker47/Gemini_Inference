@@ -4,6 +4,8 @@ import androidx.compose.runtime.toMutableStateList
 import com.chatbot.domain.ChatMessage
 import com.chatbot.domain.MODEL_PREFIX
 import com.chatbot.domain.MessageManager
+import com.google.ai.client.generativeai.type.Content
+import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -44,6 +46,18 @@ class GeminiMessageManager @Inject constructor(
     fun createFirstList(listOfMessages: List<ChatMessage>) {
         _messages.clear()
         _messages.addAll(listOfMessages)
+    }
+
+    fun convertMessagesToGeminiPrompt(): List<Content> {
+        val messages = mutableListOf<Content>()
+        this._messages.forEach { chatMessage ->
+            if (chatMessage.author == "user") {
+                messages.add(content(role = "user") { text(chatMessage.text) })
+            } else {
+                messages.add(content(role = "model") { text(chatMessage.text) })
+            }
+        }
+        return messages
     }
 
     fun appendFirstMessage(id: String, text: String) {

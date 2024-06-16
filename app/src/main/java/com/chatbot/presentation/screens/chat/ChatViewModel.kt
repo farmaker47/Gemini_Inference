@@ -17,20 +17,16 @@ import com.chatbot.domain.speech2text.Recorder
 import com.chatbot.domain.speech2text.WhisperEngine
 import com.chatbot.domain.util.map
 import com.chatbot.presentation.base.UiText
-import com.google.ai.client.generativeai.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.content
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
-import kotlin.random.Random
 
 sealed interface ChatAction {
     data class OnSendMessage(val text: String) : ChatAction
@@ -84,7 +80,6 @@ class ChatViewModel @Inject constructor(
             )
             if (useExistingChat) {
                 chatRepository.getMessages().collect { messages ->
-                    Log.d("LocalCache", "initialize: $messages")
                     chatState = chatState.copy(
                         messages = messages,
                         isLoading = false
@@ -127,104 +122,7 @@ class ChatViewModel @Inject constructor(
         val message = messageManager.addMessage(messageText, author)
         val result = chatRepository.addMessage(message)
         result.map { messageId ->
-            Log.d("LocalCache", "addMessage: id -> $messageId")
-        }
-    }
-
-    private fun addDummyMessages() {
-        val fromMs = 500L
-        val toMs = 1500L
-
-        // demo of adding messages through the messageManager that reflect back on viewModel's "state"
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Hey Gemini, have you ever thought about how AI will change the world?",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Hi! Absolutely, AI has the potential to revolutionize many aspects of our lives.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Yeah, I've read about that. What do you think will be the most significant change?",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "One major change could be in healthcare, with AI improving diagnostics and personalized treatment plans.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "That's true. Imagine getting a diagnosis faster and more accurately than ever before.",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Exactly. It can also assist doctors in managing patient care more efficiently.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage("What about in our daily lives? How will AI impact that?", USER_PREFIX)
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "AI will likely automate routine tasks, making our daily lives more convenient and giving us more free time.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Like smart homes adjusting lighting and temperature based on our preferences?",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Exactly! Smart homes will become more intuitive and responsive to our needs.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "I'm also excited about how AI can improve transportation with self-driving cars.",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Self-driving cars will make commuting safer and more efficient, reducing accidents caused by human error.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage("Do you think AI will take over many jobs though?", USER_PREFIX)
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "AI will certainly change the job landscape, but it will also create new opportunities in tech and other fields.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "That's reassuring. So, there will be a shift rather than a loss of jobs.",
-                USER_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Exactly. The key is for people to adapt and acquire new skills to stay relevant.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage("What about education? How can AI help there?", USER_PREFIX)
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "AI can personalize learning experiences, providing tailored resources and feedback to students.",
-                MODEL_PREFIX
-            )
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage("That would make learning much more efficient and engaging.", USER_PREFIX)
-            delay(Random.nextLong(fromMs, toMs))
-            addMessage(
-                "Definitely. AI has the potential to make education more accessible and effective for everyone.",
-                MODEL_PREFIX
-            )
+            // Log.d("LocalCache", "addMessage: id -> $messageId")
         }
     }
 
@@ -233,7 +131,6 @@ class ChatViewModel @Inject constructor(
             messageManager.messagesFlow.collect { messages ->
                 // when the messageManager gets a new message, add it to the state
                 chatState = chatState.copy(messages = messages)
-                Log.d("MESSAGE ADDED", "observeMessages: ${chatState.messages.map { it.author }}")
             }
         }
     }
@@ -260,22 +157,15 @@ class ChatViewModel @Inject constructor(
     private fun sendMessage(userMessage: String) {
         viewModelScope.launch(Dispatchers.IO) {
             addMessage(userMessage, USER_PREFIX)
-            // var currentMessageId: String? = _uiState.value.createLoadingMessage()
             setInputEnabled(false)
 
             try {
-                val fullPrompt = messageManager.fullPrompt
-                Log.e("APP_", fullPrompt)
-
                 val chat = generativeModel.startChat(
-                    history = listOf(
-                        content(role = "user") { text("Hello, I love red roses") },
-                        content(role = "model") { text("Great to meet you. What would you like to know?") }
-                    )
+                    history = messageManager.convertMessagesToGeminiPrompt()
                 )
-                val response = chat.sendMessage("How do I plant red roses?")
+                val response = chat.sendMessage("Answer based on the conversation. " +
+                        "Pretend you are a car mechanic")
                 response.text?.let { message ->
-                    // Log.v("gemini_", message)
                     addMessage(message, MODEL_PREFIX)
                 }
             } catch (e: Exception) {
@@ -302,7 +192,6 @@ class ChatViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Default) {
                 // Offline speech to text
                 val transcribedText = whisperEngine.transcribeFile(outputFileWav.absolutePath)
-                // Log.v( "APP" , "Transcribed text: ${transcribedText}" )
                 onAction(ChatAction.OnSendMessage(transcribedText))
                 chatState = chatState.copy(textInput = transcribedText)
             }
@@ -319,7 +208,7 @@ class ChatViewModel @Inject constructor(
         if (!outfile.exists()) {
             Log.d("APP", "File not found - " + outfile.absolutePath)
         }
-        Log.d("APP", "Returned asset path: " + outfile.absolutePath)
+        // Log.d("APP", "Returned asset path: " + outfile.absolutePath)
         return outfile.absolutePath
     }
 
@@ -334,10 +223,10 @@ class ChatViewModel @Inject constructor(
                     context.assets.open(it).use { input ->
                         FileOutputStream(target).use { output ->
                             input.copyTo(output)
-                            Log.i(
+                            /*Log.i(
                                 "Utils",
                                 "Copied from apk assets folder to ${target.absolutePath}"
-                            )
+                            )*/
                         }
                     }
                 }
