@@ -72,7 +72,7 @@ class ChatViewModel @Inject constructor(
         //temperature = 0.9f
         //topK = 16
         //topP = 0.1f
-        maxOutputTokens = 200
+        //maxOutputTokens = 200
         //stopSequences = listOf("red")
     }
     private val harassmentSafety = SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.ONLY_HIGH)
@@ -103,7 +103,6 @@ class ChatViewModel @Inject constructor(
                 }
             } else {
                 chatRepository.deleteAllMessages()
-                //addDummyMessages()
             }
             chatState = chatState.copy(
                 isLoading = false
@@ -178,8 +177,7 @@ class ChatViewModel @Inject constructor(
                 val chat = generativeModel.startChat(
                     history = messageManager.convertMessagesToGeminiPrompt()
                 )
-                val response = chat.sendMessage("Answer based on the conversation. " +
-                        "Pretend you are a car french pastry chef")
+                val response = chat.sendMessage("Answer based on the conversation")
                 response.text?.let { message ->
                     addMessage(message, MODEL_PREFIX)
                 }
