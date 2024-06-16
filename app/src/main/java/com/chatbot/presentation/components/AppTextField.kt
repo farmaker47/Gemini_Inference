@@ -1,5 +1,6 @@
 package com.chatbot.presentation.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
@@ -25,7 +26,7 @@ fun AppTextField(
     BasicTextField(
         value = textState,
         onValueChange = onTextChange,
-        textStyle = TextStyle(color = Color.Black, fontSize = 18.sp),
+        textStyle = TextStyle(color = if (isSystemInDarkTheme()) Color.White else Color.Black, fontSize = 18.sp),
         cursorBrush = SolidColor(Color.Blue),
         decorationBox = { innerTextField ->
             Box(
