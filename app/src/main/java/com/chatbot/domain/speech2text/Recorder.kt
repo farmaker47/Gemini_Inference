@@ -1,14 +1,11 @@
 package com.chatbot.domain.speech2text
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import com.chatbot.domain.speech2text.WaveUtil
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
@@ -29,16 +26,15 @@ class Recorder(private val mContext: Context) {
         mExecutorThread = Thread {
             mInProgress.set(true)
             threadFunction()
-            mInProgress.set(false)
         }
-        mExecutorThread!!.start()
+        mExecutorThread?.start()
     }
 
     fun stop() {
         mInProgress.set(false)
         try {
             if (mExecutorThread != null) {
-                mExecutorThread!!.join()
+                mExecutorThread?.join()
                 mExecutorThread = null
             }
         } catch (e: InterruptedException) {
@@ -46,16 +42,9 @@ class Recorder(private val mContext: Context) {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun threadFunction() {
         try {
-            if (ActivityCompat.checkSelfPermission(
-                    mContext,
-                    Manifest.permission.RECORD_AUDIO
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                Log.d(TAG, "AudioRecord permission is not granted")
-                return
-            }
             val channels = 1
             val bytesPerSample = 2
             val sampleRateInHz = 16000
