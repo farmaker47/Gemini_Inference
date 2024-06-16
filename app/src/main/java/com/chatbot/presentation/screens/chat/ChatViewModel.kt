@@ -18,6 +18,10 @@ import com.chatbot.domain.speech2text.WhisperEngine
 import com.chatbot.domain.util.map
 import com.chatbot.presentation.base.UiText
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.BlockThreshold
+import com.google.ai.client.generativeai.type.HarmCategory
+import com.google.ai.client.generativeai.type.SafetySetting
+import com.google.ai.client.generativeai.type.generationConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -64,9 +68,20 @@ class ChatViewModel @Inject constructor(
     private lateinit var recorder: Recorder
     private lateinit var outputFileWav: File
 
+    val config = generationConfig {
+        //temperature = 0.9f
+        //topK = 16
+        //topP = 0.1f
+        maxOutputTokens = 100
+        //stopSequences = listOf("red")
+    }
+    private val harassmentSafety = SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.ONLY_HIGH)
+    private val hateSpeechSafety = SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.MEDIUM_AND_ABOVE)
     private val generativeModel = GenerativeModel(
         modelName = "gemini-1.5-flash",
-        apiKey = GEMINI_API_KEY
+        apiKey = GEMINI_API_KEY,
+        generationConfig = config,
+        safetySettings = listOf(harassmentSafety, hateSpeechSafety)
     )
 
     init {
@@ -164,7 +179,7 @@ class ChatViewModel @Inject constructor(
                     history = messageManager.convertMessagesToGeminiPrompt()
                 )
                 val response = chat.sendMessage("Answer based on the conversation. " +
-                        "Pretend you are a car mechanic")
+                        "Pretend you are a car french pastry chef")
                 response.text?.let { message ->
                     addMessage(message, MODEL_PREFIX)
                 }
