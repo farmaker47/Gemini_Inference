@@ -72,7 +72,7 @@ class ChatViewModel @Inject constructor(
         //temperature = 0.9f
         //topK = 16
         //topP = 0.1f
-        maxOutputTokens = 100
+        maxOutputTokens = 200
         //stopSequences = listOf("red")
     }
     private val harassmentSafety = SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.ONLY_HIGH)
@@ -81,7 +81,7 @@ class ChatViewModel @Inject constructor(
         modelName = "gemini-1.5-flash",
         apiKey = GEMINI_API_KEY,
         generationConfig = config,
-        safetySettings = listOf(harassmentSafety, hateSpeechSafety)
+        // safetySettings = listOf(harassmentSafety, hateSpeechSafety)
     )
 
     init {
