@@ -253,7 +253,7 @@ class ChatViewModel @Inject constructor(
         private const val MODEL_PATH = "whisper_tiny_english_14.tflite"
         private const val VOCAB_PATH = "filters_vocab_en.bin"
         private const val RECORDING_FILE_WAV = "recording.wav"
-        // TODO DO NOT UPLOAD TO GITHUB
+        // TODO DO NOT UPLOAD TO GITHUB OR ANYWHERE ONLINE
         private const val GEMINI_API_KEY = ""
     }
 }
