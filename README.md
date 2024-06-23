@@ -27,6 +27,7 @@ class ChatViewModel @Inject constructor(
         private const val VOCAB_PATH = "filters_vocab_en.bin"
         private const val RECORDING_FILE_WAV = "recording.wav"
         // TODO: Add the Gemini API key here
+        // TODO DO NOT UPLOAD TO GITHUB OR ANYWHERE ONLINE ALSO DO NOT SHIP IT WITH THE APP.
         private const val GEMINI_API_KEY = ""
     }
 }
